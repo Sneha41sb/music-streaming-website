@@ -1,9 +1,48 @@
+"use client"
 import Image from 'next/image';
 import Link from "next/link";
 import { IoMdPlay } from 'react-icons/io';
+import { createClient } from '@supabase/supabase-js';
+import { useQuery } from '@tanstack/react-query';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 
 export default function Allsongs() {
+  const getAllSongs = async () => {
+    const {data,error} = await supabase.from("songs").select("*");
+
+    if(error){
+      console.log("fetchAllSongsError:",error.message);
+    }
+
+    return data;
+  }
+
+  const {data:songs,isLoading,error,isError} = useQuery({
+    queryFn:getAllSongs,
+    queryKey:["allsongs"]
+  })
+
+  if(isLoading)
+    return(
+      <div className="min-h-[90vh] bg-[#160E16] my-16 p-4 lg:ml-80 rounded-lg mx-4 sm:ml-0 lg:ml-[22rem]">
+        <h2 className="text-2xl text-white mb-3 font-semibold">New Songs</h2>
+        <h2 className='text-center text-white text-2xl'>Loading</h2>
+      </div>
+    );
+  
+    if(isError)
+    return(
+      <div className="min-h-[90vh] bg-[#160E16] my-16 p-4 lg:ml-80 rounded-lg mx-4 sm:ml-0 lg:ml-[22rem]">
+        <h2 className="text-2xl text-white mb-3 font-semibold">New Songs</h2>
+        <h2 className='text-center text-white text-2xl'>{error.message}</h2>
+      </div>
+    );
+
   return (
     <div className="min-h-[90vh] bg-[#160E16] my-16 p-4 lg:ml-80 rounded-lg mx-4 sm:ml-0 lg:ml-[22rem]">
       <h2 className="text-2xl text-white mb-3 font-semibold">New Songs</h2>
